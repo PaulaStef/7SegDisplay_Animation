@@ -1,0 +1,596 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;	 
+use IEEE.std_logic_unsigned.all;
+  
+  	---------- MUX 2:1   ------
+  entity MUX2_1 is 	
+	  Port(	 a,b : in bit_vector(6 downto 0);
+	  s : in bit;  
+	  y: out bit_vector(6 downto 0) );
+  end MUX2_1; 
+  
+  architecture Behavioral of MUX2_1 is
+  
+  begin
+	  y(0) <= (s and b(0) ) or ( (not s ) and a(0) ); 
+	  y(1) <= (s and b(1) ) or ( (not s ) and a(1) );
+	  y(2) <= (s and b(2) ) or ( (not s ) and a(2) );
+	  y(3) <= (s and b(3) ) or ( (not s ) and a(3) );
+	  y(4) <= (s and b(4) ) or ( (not s ) and a(4) );
+	  y(5) <= (s and b(5) ) or ( (not s ) and a(5) );
+	  y(6) <= (s and b(6) ) or ( (not s ) and a(6) );
+  end Behavioral;  
+  
+  ------ MUX 4:1 -----
+  entity MUX4_1 is
+	  Port( a,b,c,d : in bit_vector(6 downto 0);
+	  s0,s1 : in bit;
+	  y: out bit_vector(6 downto 0) );
+  end MUX4_1;
+  
+  architecture Behavioral of MUX4_1 is 
+  
+  component MUX2_1 is
+	  Port ( a,b : in bit_vector (6 downto 0);
+	  s : in bit ;
+	  y: out bit_vector (6 downto 0));
+  end component;
+  Signal Y1,Y2 : bit_vector (6 downto 0); 
+  begin
+	  test0 : MUX2_1 port map(a,b,s0,y1);
+	  test1 : MUX2_1 port map(c,d,s0,y2);
+	  test2 : MUX2_1 port map(y1,y2,s1,y);
+  end Behavioral;  
+  
+ ----- Comparator pe un bit----- 
+entity Comp1_bit is
+	Port( a,b : in bit;
+	L,H,E : out bit);
+end Comp1_bit;
+
+architecture behave	 of Comp1_bit is
+begin
+	H <= a and (not b);
+	L <= (not a) and b;
+	E <= ((not a) and (not b)) or ( a and b) ;
+end behave;
+  
+  Signal Low,Eql,High : bit_vector (4 downto 0);
+  begin		
+	  bit0 : Comp1_bit port map(a(0),b(0),Low(0),High(0),Eql(0));
+	  bit1 : Comp1_bit port map(a(1),b(1),Low(1),High(1),Eql(1));
+	  bit2 : Comp1_bit port map(a(2),b(2),Low(2),High(2),Eql(2)); 
+	  bit3 : Comp1_bit port map(a(3),b(3),Low(3),High(3),Eql(3));  
+	  bit4 : Comp1_bit port map(a(4),b(4),Low(4),High(4),Eql(4));
+	  H <= High(4) or ( Eql(4) and High(3) ) or ( Eql(4) and Eql(3) and High(2) ) or ( Eql(4) and Eql(3) and Eql(2) and High(1) ) or ( Eql(4) and Eql(3) and Eql(2) and Eql(1) and High(0) )  ;
+	  L <= Low(4) or (Eql(4) and Low(3)) or (Eql(4) and Eql(3) and Low(2)) or ( Eql(4) and Eql(3) and Eql(2) and Low(1)) or (Eql(4) and Eql(3) and Eql(2) and Eql(1) and Low(0) )  ;
+	  E <= Eql(4) and Eql(3) and Eql(2) and Eql(1) and Eql(0);
+  end Behave; 
+  
+  --------DMUX 1 bit animatie-----
+  	entity DMUX_anim is
+	port(
+		X : in BIT;
+		s0 : in BIT;
+		s1 : in BIT;
+		y1 : out BIT;
+		y2 : out BIT;
+		y3 : out BIT;
+		y4 : out BIT
+	);
+	end DMUX_anim;
+		architecture behave of DMUX_anim is
+		begin 
+			y4 <= X and s0 and s1;  
+			y3 <= X and s1 and (not s0);
+			y2 <= X and (not s1) and s0;
+			y1 <= X and (not s1) and (not s0);
+			
+		end behave;     
+   ------- DMUX 7 biti -----
+  entity DMUX1_4  is
+	port(
+		a : in BIT_VECTOR(6 downto 0);
+		s0 : in BIT;
+		s1 : in BIT;
+		y1 : out BIT_VECTOR(6 downto 0);
+		y2 : out BIT_VECTOR(6 downto 0);
+		y3 : out BIT_VECTOR(6 downto 0);
+		y4 : out BIT_VECTOR(6 downto 0)
+	);
+  end DMUX1_4;
+  
+  architecture behave of DMUX1_4 is 
+  component DMUX_anim
+	port(
+		X : in BIT;
+		s0 : in BIT;
+		s1 : in BIT;
+		y1 : out BIT;
+		y2 : out BIT;
+		y3 : out BIT;
+		y4 : out BIT
+	);
+	end component;
+	begin 
+		OUT1 : DMUX_anim port map(a(0),s0,s1,y1(0),y2(0),y3(0),y4(0)); 
+		OUT2 : DMUX_anim port map(a(1),s0,s1,y1(1),y2(1),y3(1),y4(1));
+		OUT3 : DMUX_anim port map(a(2),s0,s1,y1(2),y2(2),y3(2),y4(2));
+		OUT4 : DMUX_anim port map(a(3),s0,s1,y1(3),y2(3),y3(3),y4(3));
+		OUT5 : DMUX_anim port map(a(4),s0,s1,y1(4),y2(4),y3(4),y4(4));
+		OUT6 : DMUX_anim port map(a(5),s0,s1,y1(5),y2(5),y3(5),y4(5));
+		OUT7 : DMUX_anim port map(a(6),s0,s1,y1(6),y2(6),y3(6),y4(6));
+		
+	end behave; 
+	
+  	------ Bistabil D --------
+	entity Flip_flop_D is
+	port(
+		D : in BIT;
+		Clk : in BIT;
+		Q : out BIT
+	);
+	end Flip_flop_D;
+	
+	architecture behave of Flip_Flop_D is	
+	begin
+  process(Clk)
+   variable q_temp : BIT;
+    begin
+  if(Clk'EVENT and Clk='1') then
+       q_temp := D;
+  end if;
+      Q <= q_temp;
+  end process;
+	end behave;
+	
+	------- Mux 4:1 un bit----
+    entity MUX41 is
+	port(
+		i3 : in BIT;
+		i2 : in BIT;
+		i1 : in BIT;
+		i0 : in BIT;
+		s0,s1 : in BIT ;
+		O : out BIT
+	);
+	end MUX41;
+	
+	architecture behave of MUX41 is
+	begin
+		O <= (i0 and s0 and s1) or (i1 and (not s0) and s1 ) or ( i2 and s0 and (not s1)) or ( i3 and (not s0) and (not s1));
+		
+	end behave;
+ 
+ ---------- Registru 7 biti litere ----
+	entity Registru7_biti is
+	port(
+		sin : in BIT_VECTOR(6 downto 0);
+		Clk : in BIT;
+		sout : out bit_vector(6 downto 0)
+	);
+	end Registru7_biti;
+	
+	architecture behave of Registru7_biti is
+	component Flip_flop_D
+	port(
+		D : in BIT;
+		Clk : in BIT;
+		Q : out bit
+	);
+	end component;
+	begin  
+		D0: Flip_flop_D port map(sin(0),Clk,sout(0));
+		D1: Flip_flop_D port map(sin(1),Clk,sout(1));
+		D2: Flip_flop_D port map(sin(2),Clk,sout(2));
+		D3: Flip_flop_D port map(sin(3),Clk,sout(3));
+		D4: Flip_flop_D port map(sin(4),Clk,sout(4));
+		D5: Flip_flop_D port map(sin(5),Clk,sout(5));
+		D6: Flip_flop_D port map(sin(6),Clk,sout(6));
+		
+	end behave;	 
+	
+		------ Bistabil D ------
+	 ENTITY DFF IS
+      PORT(d, clk,CL : IN BIT;
+           q : OUT BIT);
+    END DFF;
+	
+  Architecture behave OF DFF IS
+  begin
+	  process(clk)
+  variable q_temp : BIT;
+ begin
+  IF(CL= '1') then
+	  q_temp :='0';
+  elsif(clk'EVENT and clk='1') then
+       q_temp := d;
+  end if;
+     q <= q_temp;
+  end process;
+ end behave; 
+	
+	-------Registru deplasare 4 biti----------
+	entity Registru_deplasare is
+	port(
+		clk : in BIT;
+		SL : in BIT;
+		SR : in BIT;
+		CL : in BIT;
+		S0 : in BIT;
+		S1 : in BIT;
+		i : in BIT_VECTOR(3 downto 0);
+		q : out bit_vector (3 downto 0)
+	);
+	end Registru_deplasare;	
+	
+	architecture behave of Registru_deplasare is
+	component DFF
+	port(
+		d : in BIT;
+		clk : in BIT;
+		CL : in BIT;
+		q : out bit
+	);
+	end component;
+	
+	component MUX41
+	port(
+		i0 : in BIT;
+		i1 : in BIT;
+		i2 : in BIT;
+		i3 : in BIT;
+		s0,s1 : in BIT;
+		o : out BIT
+	);
+	end component;
+	 SIGNAL o,qt: BIT_VECTOR(3 DOWNTO 0); 
+	begin  
+         U1:MUX41 PORT MAP(SL, qt(2), i(3), qt(3), s0,s1, o(3));
+         U2:MUX41 PORT MAP(qt(3), qt(1), i(2), qt(2), s0,s1, o(2));
+         U3:MUX41 PORT MAP(qt(2), qt(0), i(1), qt(1), s0,s1, o(1));
+         U4:MUX41 PORT MAP(qt(1), SR, i(0), qt(0), s0,s1, o(0));
+         U5:DFF PORT MAP(o(3), clk, CL, qt(3));
+         U6:DFF PORT MAP(o(2), clk, CL, qt(2));
+         U7:DFF PORT MAP(o(1), clk, CL, qt(1));
+         U8:DFF PORT MAP(o(0), clk, CL, qt(0));
+         Q <= qt; 
+	end behave;	
+	
+	--------- Numarator 2 biti ----------
+	entity Counter2	is
+	port(
+		Clk : in BIT;
+		CLR : in BIT;
+		Q : out bit_vector (1 downto 0)
+	);
+	end Counter2;
+	
+	architecture behave of Counter2 is 
+	Signal b : bit_vector (1 downto 0);
+	begin 
+		process(Clk) 
+		variable a : integer:=1; 
+		begin 
+			if Clk'event and Clk='1'  then
+			        a:= a+1; 
+					if a=1 then
+						b <="00";
+					elsif a=2 then
+						b <="01";
+					elsif a=3 then
+						b<="10";
+					elsif a=4 then
+						b<="11"; a:=0;
+						end if;		
+				end if;	
+			Q <= b;
+		end process;
+		
+	end behave;
+	
+	-------Divizorul de frecventa---
+	entity Clock_divider is
+		port (
+		Clk : in BIT;
+		Reset : in BIT;
+		sout : out Bit_vector(1 downto 0)
+			);
+	end Clock_divider;
+	
+	architecture behave of Clock_divider is	
+	begin 
+	process
+	variable a:integer:=0;
+	variable b:bit_vector (1 downto 0):="00";
+	begin 
+	 if(Reset='1') then
+		a:=0; b:="00";
+	 elsif clk='1' and clk'event then
+	  a:=a+1;
+	  if a=50000000 and b="00" then
+		   b:="01"; a:=0;
+	   elsif a=50000000 and b="01" then
+		   b:="10"; a:=0;
+	   elsif a=50000000 and b="10" then
+		   b:="11"; a:=0;
+	   elsif a=50000000 and b="11" then
+		   b:="00"; a:=0;
+	   end if;
+	 end if;
+	 sout <=b;
+	 wait on clk;
+	end process;		
+	end behave;	
+	
+-------Memoria ROM 2^5x7----
+entity ROMmem is
+	port (
+	addr : in bit_vector(4 downto 0);
+	Mem : out bit_vector (6 downto 0)
+		);
+end ROMmem;
+
+architecture behave of ROMmem is
+constant data0 : bit_vector (6 downto 0) :="0001000";  --A
+constant data1 : bit_vector (6 downto 0) :="1100000";  --B
+constant data2 : bit_vector (6 downto 0) :="0110001";  --C
+constant data3 : bit_vector (6 downto 0) :="1000010";  --D
+constant data4 : bit_vector (6 downto 0) :="0110000";  --E
+constant data5 : bit_vector (6 downto 0) :="0111000";  --F
+constant data6 : bit_vector (6 downto 0) :="0100000";  --G
+constant data7 : bit_vector (6 downto 0) :="1001000";  --H
+constant data8 : bit_vector (6 downto 0) :="1001111";  --I
+constant data9 : bit_vector (6 downto 0) :="1000011";  --J
+constant data10 : bit_vector (6 downto 0) :="1011000"; --K
+constant data11 : bit_vector (6 downto 0) :="1110001"; --L
+constant data12 : bit_vector (6 downto 0) :="1110001"; --M
+constant data13 : bit_vector (6 downto 0) :="1101000"; --N
+constant data14 : bit_vector (6 downto 0) :="0000001"; --O
+constant data15 : bit_vector (6 downto 0) :="0011000"; --P
+constant data16 : bit_vector (6 downto 0) :="0010000"; --Q
+constant data17 : bit_vector (6 downto 0) :="1101110"; --R
+constant data18 : bit_vector (6 downto 0) :="0100100"; --S
+constant data19 : bit_vector (6 downto 0) :="0001111"; --T
+constant data20 : bit_vector (6 downto 0) :="1000001"; --U
+constant data21 : bit_vector (6 downto 0) :="1100011"; --V
+constant data22 : bit_vector (6 downto 0) :="1000000"; --W
+constant data23 : bit_vector (6 downto 0) :="1101100"; --X
+constant data24 : bit_vector (6 downto 0) :="1001100"; --Y
+constant data25 : bit_vector (6 downto 0) :="0010010"; --Z
+
+type rom_array is array(0 to 25) of bit_vector(6 downto 0);	
+
+constant rom : rom_array := ( data0,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,data13,data14,data15,
+data16,data17,data18,data19,data20,data21,data22,data23,data24,data25);
+begin  
+	process(addr) 
+	begin
+		case addr is
+			when "00000" => Mem<=rom(0);
+			when "00001" => Mem<=rom(1);
+			when "00010" => Mem<=rom(2);
+			when "00011" => Mem<=rom(3);
+			when "00100" => Mem<=rom(4);
+			when "00101" => Mem<=rom(5);
+			when "00110" => Mem<=rom(6);
+			when "00111" => Mem<=rom(7);
+			when "01000" => Mem<=rom(8);
+			when "01001" => Mem<=rom(9);
+			when "01010" => Mem<=rom(10);
+			when "01011" => Mem<=rom(11);
+			when "01100" => Mem<=rom(12);
+			when "01101" => Mem<=rom(13);
+			when "01110" => Mem<=rom(14);
+			when "01111" => Mem<=rom(15);
+			when "10000" => Mem<=rom(16);
+			when "10001" => Mem<=rom(17);
+			when "10010" => Mem<=rom(18);
+			when "10011" => Mem<=rom(19);
+			when "10100" => Mem<=rom(20);
+			when "10101" => Mem<=rom(21);
+			when "10110" => Mem<=rom(22);
+			when "10111" => Mem<=rom(23);
+			when "11000" => Mem<=rom(24);
+			when "11001" => Mem<=rom(25);
+			when others => NULL;
+		end case;
+	end process;
+	
+end behave;	
+
+entity mux_4to1 is
+ port(
+ 
+     A,B,C,D : in bit_vector (4 downto 0);
+     S0,S1: in bit;
+     Z: out bit_vector (4 downto 0)
+  );
+end mux_4to1;
+ 
+architecture bhv of mux_4to1 is
+begin
+process (A,B,C,D,S0,S1) is
+begin
+  if (S0 ='0' and S1 = '0') then
+      Z <= A;
+  elsif (S0 ='1' and S1 = '0') then
+      Z <= B;
+  elsif (S0 ='0' and S1 = '1') then
+      Z <= C;
+  else
+      Z <= D;
+  end if;
+ 
+end process;
+end bhv;  
+
+
+--------------- COD PROIECT ANIMATIE-----------
+
+
+	entity Animatie_text is
+		port (
+		Anim : in bit_vector (1 downto 0); 
+		Clock : in bit;
+		Anod : out bit_vector (3 downto 0);
+		segment : out bit_vector (6 downto 0)
+			);
+	end Animatie_text;  
+	
+	architecture Behavioral of Animatie_text is	 
+	
+	component MUX4_1 is
+	  Port( a,b,c,d : in bit_vector(6 downto 0);
+	  s0,s1 : in bit;
+	  y: out bit_vector(6 downto 0) );
+    end component; 
+	
+	component mux_4to1 is
+      port(
+ 
+     A,B,C,D : in bit_vector (4 downto 0);
+     S0,S1: in bit;
+     Z: out bit_vector (4 downto 0) );
+     end component;
+	
+	component Comp5_bit is
+	  Port( a,b : in bit_vector (4 downto 0);
+	  H,L,E : out bit );
+    end component;	
+	
+	  component DMUX1_4  is
+	port(
+		a : in BIT_VECTOR(6 downto 0);
+		s0 : in BIT;
+		s1 : in BIT;
+		y1 : out BIT_VECTOR(6 downto 0);
+		y2 : out BIT_VECTOR(6 downto 0);
+		y3 : out BIT_VECTOR(6 downto 0);
+		y4 : out BIT_VECTOR(6 downto 0)
+	);
+  end component; 
+  
+    component DMUX_anim
+	port(
+		X : in BIT;
+		s0 : in BIT;
+		s1 : in BIT;
+		y1 : out BIT;
+		y2 : out BIT;
+		y3 : out BIT;
+		y4 : out BIT
+	);
+	end component;
+	
+	component Registru7_biti is
+	port(
+		sin : in BIT_VECTOR(6 downto 0);
+		Clk : in BIT;
+		sout : out bit_vector(6 downto 0)
+	);
+	end component; 
+	
+	component Registru_deplasare is
+	port(
+		clk : in BIT;
+		SL : in BIT;
+		SR : in BIT;
+		CL : in BIT;
+		S0 : in BIT;
+		S1 : in BIT;
+		i : in BIT_VECTOR(3 downto 0);
+		q : out bit_vector (3 downto 0)
+	);
+	end component;
+	
+	component Counter2	is
+	port(
+		Clk : in BIT;
+		CLR : in BIT;
+		Q : out bit_vector (1 downto 0)
+	);
+	end component;
+	
+	component Clock_divider is
+		port (
+		Clk : in BIT;
+		Reset : in BIT;
+		sout : out Bit_vector(1 downto 0)
+			);
+	end Component;
+	
+	component Blk_box is 
+	port(
+	Enable : in bit;
+	A,B,C,D : in bit_vector (6 downto 0);
+	Lit1,Lit2,Lit3,Lit4 : out bit_vector (6 downto 0)
+	);
+    end component;
+	
+	component ROMmem is
+	port (
+	addr : in bit_vector(4 downto 0);
+	Mem : out bit_vector (6 downto 0)
+		);
+    end component; 
+	
+	constant adr1 : bit_vector (4 downto 0) :="10100";  --U
+	constant adr2 : bit_vector (4 downto 0) :="10011";  --T 
+	constant adr3 : bit_vector (4 downto 0) :="00010";  --C
+	constant adr4 : bit_vector (4 downto 0) :="01101";  --N	
+	Signal empty : bit_vector (6 downto 0) :="0000000";  --- gol
+	Signal ADR_c : bit_vector (4 downto 0);
+	SIGNAL LITERA,Dm_A,Dm_B,Dm_C,Dm_D,A,B,C,D,Lit1,Lit2,Lit3,Lit4 : bit_vector (6 downto 0);
+	SIGNAL S,Q ,Sel_adr : bit_vector (1 downto 0) ;
+	SIGNAL A1_1,A1_2,A1_3,A1_4,A2_1,A2_2,A2_3,A2_4,A3_1,A3_2,A3_3,A3_4,A4_1,A4_2,A4_3,A4_4 : bit_vector (6 downto 0);
+	SIGNAL Enable,anod_out : bit_vector (3 downto 0); 
+	SIGNAL H,L,E,C_A,C_B,C_C,C_D,Nex,S0,S1 : bit ;
+	
+	begin
+		Adr : mux_4to1 port map(adr1,adr2,adr3,adr4,Sel_adr(0),Sel_adr(1),ADR_c); --Se alege adresa folosind un mux cu selectiile de la numarator
+		Num : Counter2 port map(Clock,'0',Sel_adr);	 --Numaratorul care va da selectiile
+		Mem : ROMmem port map(ADR_c,Litera);  --Se elege litera din memorie
+		Dmux : DMUX1_4 port map(Litera,Sel_adr(0),Sel_adr(1),Dm_A,Dm_B,Dm_C,Dm_D); --Se alege registrul in care se pastreaza	  
+		Dmux_clk : DMUX_anim port map('1',Sel_adr(0),Sel_adr(1),C_A,C_B,C_C,C_D); --Un dmux care v-a avea ca iesiri clock-ul pentru registre
+		REG1 : Registru7_biti port map(Dm_A,C_A,A);
+		REG2 : Registru7_biti port map(Dm_B,C_B,B);
+		REG3 : Registru7_biti port map(Dm_C,C_C,C);
+		REG4 : Registru7_biti port map(Dm_D,C_D,D);
+
+		---Prima anim
+		Mux1_1 : MUX4_1 port map(A,empty,A,empty,S(0),S(1),A1_1);
+		Mux2_1 : MUX4_1 port map(B,empty,B,empty,S(0),S(1),A1_2);
+		Mux3_1 : MUX4_1 port map(C,empty,C,empty,S(0),S(1),A1_3);
+		Mux4A2 : MUX4_1 port map(D,empty,D,empty,S(0),S(1),A1_4); 
+		---A doua anim
+		Mux1A2 : MUX4_1 port map(A,empty,empty,empty,S(0),S(1),A2_1); 
+		Mux2_2 : MUX4_1 port map(B,A,empty,empty,S(0),S(1),A2_2);
+		Mux3_2 : MUX4_1 port map(C,B,A,empty,S(0),S(1),A2_3);
+		Mux4_2 : MUX4_1 port map(D,C,B,A,S(0),S(1),A2_4);
+		---A treia anim
+		--Mux1_3 : MUX4_1 port map(A,empty,empty,empty,S(0),S(1),A3_1); --Putem folosi A2_1
+		Mux2_3 : MUX4_1 port map(empty,B,empty,empty,S(0),S(1),A3_2);
+		Mux3_3 : MUX4_1 port map(empty,empty,C,empty,S(0),S(1),A3_3);
+		Mux4_3 : MUX4_1 port map(empty,empty,empty,D,S(0),S(1),A3_4);
+		---A patra anim
+		Mux1_4 : MUX4_1 port map(A,A,A,A,S(0),S(1),A4_1);
+		Mux2_4 : MUX4_1 port map(empty,B,B,B,S(0),S(1),A4_2);
+		Mux3_4 : MUX4_1 port map(empty,empty,C,C,S(0),S(1),A4_3);
+		--Mux4_4 : MUX4_1 port map(empty,empty,empty,D,S(0),S(1),A4_4); --Putem folosim A3_4
+		---Divizor de frecv
+		Divider : Clock_divider port map(Clock,'0',S); 
+		--alegere anod
+		AN : Registru_deplasare port map(Clock,'1','1','0',S0,S1,"0001",anod_out); 
+		S0 <= anod_out(0) and anod_out(1) and anod_out(2) and anod_out(3);
+		S1 <= not S0; 
+		Anod <= anod_out;	
+		--Alegere animatii
+		Mux_an1 : MUX4_1 port map(A1_1,A2_1,A2_1,A4_1,Anim(0),Anim(1),Lit1);
+		Mux_an2 : MUX4_1 port map(A1_2,A2_2,A3_2,A4_2,Anim(0),Anim(1),Lit2);
+		Mux_an3 : MUX4_1 port map(A1_3,A2_3,A3_3,A4_3,Anim(0),Anim(1),Lit3);
+		Mux_an4 : MUX4_1 port map(A1_4,A2_4,A3_4,A3_4,Anim(0),Anim(1),Lit4);
+                --afisare
+                Mux_afis : MUX4_1 port map(Lit1,Lit2,Lit3,Lit4,Sel_adr(0),Sel_adr(1),segment);
+	    
+	end Behavioral;	
